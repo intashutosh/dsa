@@ -5,38 +5,47 @@ using ll = long long;
 //lazy propagation
 int n;
 
-void updateRange(int start, int end, int i, int l, int r, vector<int>& segt, vector<int>& lazy, int val){
+void updateRange(int start, int end, int i,int l, int r,vector<int>& segt,vector<int>& lazy,int val){
 
     if(lazy[i] != 0){
-        lazy[i] = (r-l+1)*lazy[i];
+        segt[i] = (r-l+1)*lazy[i];
+
         if(l != r){
             lazy[2*i+1] = lazy[i];
             lazy[2*i+2] = lazy[i];
         }
+
         lazy[i] = 0;
     }
 
+    if(start > r || end < l)
+        return;
+
     if(l >= start && r <= end){
         segt[i] = (r-l+1)*val;
+
         if(l != r){
             lazy[2*i+1] = val;
             lazy[2*i+2] = val;
         }
+
         return;
     }
 
-    if(start > r || end < l){
-        return;
-    }
     int mid = l + (r-l)/2;
-    updateRange(start, end, 2*i+1, l, mid, segt, lazy);
-    updateRange(start, end, 2*i+2, mid+1, r, segt, lazy);
-    segt[i] = segt[2*i+1] + segt[2*i+1];
+
+    updateRange(start, end, 2*i+1, l, mid,
+                segt, lazy, val);
+
+    updateRange(start, end, 2*i+2, mid+1, r,
+                segt, lazy, val);
+
+    segt[i] = segt[2*i+1] + segt[2*i+2];
 }
 
 int updateQuery(vector<int>& segt, int idx, int l, int r, int i, int val){
     if(idx < l || idx > r) return segt[i];
-    if(l == r)  return segt[i]  = val;
+    if(l == r)  return segt[i]  = val; 
     int mid = (l+r)/2;
     int a = updateQuery(segt, idx, l, mid, i*2+1, val);
     int b = updateQuery(segt, idx, mid+1, r, i*2+2, val);
